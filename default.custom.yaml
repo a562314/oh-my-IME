@@ -1,0 +1,28 @@
+customization:
+  distribution_code_name: Weasel
+  distribution_version: 0.16.0
+  generator: "Rime::SwitcherSettings"
+  modified_time: "Mon Jun  3 19:44:17 2024"
+  rime_version: 1.11.2
+patch:
+  "ascii_composer/good_old_caps_lock": true
+  "ascii_composer/switch_key":
+    Caps_Lock: clear
+    Control_L: noop
+    Control_R: noop
+    Eisu_toggle: clear
+    Shift_L: commit_code
+    Shift_R: commit_code
+  "ascii_composer/switch_key/Shift_L": commit_code #左shift顶屏
+  "ascii_composer/switch_key/Shift_R": commit_code #右shift顶屏
+  "menu/page_size": 8 #候选词数量
+  schema_list:
+    - {schema: rime_mint}
+    - {schema: double_pinyin_flypy}
+    - {schema: rime_mint_flypy}
+    - {schema: wubi98_mint}
+    - {schema: tiger}
+    - {schema: tigress}
+  "switcher/hotkeys":
+    - "Control+grave"
+    - "Control+F8"
