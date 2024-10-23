@@ -1,0 +1,296 @@
+schema:
+  schema_id: rime_mint
+  name: 薄荷拼音-全拼输入
+  version: "24.10.02"
+  author:
+    - mintimate < @Mintimate|https://www.mintimate.cn >
+  description: |
+    Mintimate的薄荷拼音方案。
+    除了参考官方明月拼音，还参考：
+      * chenhe: https://chenhe.me
+      * rime wiki: https://github.com/rime/home/wiki
+      * rime ice: https://github.com/iDvel/rime-ice
+      * Chewing - 新酷音
+      * opencc - 開放中文轉換
+  dependencies:
+    - radical_pinyin
+    - wubi98_mint
+    - stroke
+    - melt_eng
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [ 中文, 英文 ]
+  - name: emoji_suggestion
+    states: [ "😣️","😁️"]
+    reset: 1
+  - name: full_shape
+    states: [ 半角, 全角 ]
+    reset: 0
+  - name: transcription
+    states: [ 简体 , 繁体 ]
+    reset: 0
+  - name: ascii_punct
+    states: [ "。，" , "．，" ]
+    reset: 0
+engine:
+  processors:
+    - lua_processor@*select_character
+    - lua_processor@*codeLengthLimit_processor
+    - ascii_composer
+    - recognizer
+    - key_binder
+    - speller
+    - punctuator
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    - affix_segmentor@wubi98_mint
+    - affix_segmentor@radical_reverse_lookup
+    - affix_segmentor@stroke
+    - abc_segmentor
+    - punct_segmentor
+    - fallback_segmentor
+  translators:
+    - punct_translator
+    - script_translator
+    - lua_translator@*mint_date_time_translator
+    - lua_translator@*number_translator
+    - lua_translator@*chineseLunarCalendar_translator
+    - table_translator@melt_eng
+    - table_translator@cn_en
+    - reverse_lookup_translator@radical_reverse_lookup
+    - reverse_lookup_translator@wubi98_mint
+    - reverse_lookup_translator@stroke
+    - lua_translator@*force_gc
+  filters:
+    - lua_filter@*corrector_filter
+    - lua_filter@*autocap_filter
+    - lua_filter@*auxCode_filter@moqi_aux_code
+    - simplifier@emoji_suggestion
+    - simplifier@transcription_cc
+    - lua_filter@*reduce_english_filter
+    - uniquifier
+transcription_cc:
+  option_name: transcription
+  opencc_config: s2t.json
+  tips: none
+  excluded_types: [ reverse_lookup ]
+codeLengthLimit_processor: 25
+axu_code:
+  trigger_word: "`"
+  show_aux_notice: "trigger"
+emoji_suggestion:
+  opencc_config: emoji.json
+  option_name: emoji_suggestion
+  tips: all
+  inherit_comment: false
+reduce_english_filter:
+  mode: all
+  idx: 2
+  words: [aid, ann,
+  bail, bait, bam, band, bans, bat, bay, bend, bent, benz, bib, bid, bien, biz, boc, bop, bos, bud, buf,
+  cab, cad, cain, cam, cans, cap, cas, cef, chad, chan, chap, chef, cher, chew, chic, chin, chip, chit, coup, cum, cunt, cur,
+  dab, dag, dal, dam, dent, dew, dial, diet, dim, din, dip, dis, dit, doug, dub, dug, dunn,
+  fab, fax, fob, fog, foul, fur,
+  gag, gail, gain, gal, gam, gaol, ged, gel, ger, guam, gus, gut,
+  hail, ham, hank, hans, hat, hay, heil, heir, hem, hep, hud, hum, hung, hunk, hut,
+  jim, jug,
+  kat,
+  lab, lad, lag, laid, lam, laos, lap, lat, lax, lay, led, leg, lex, liam, lib, lid, lied, lien, lies, linn, lip, lit, liz, lob, lug, lund, lung, lux,
+  mag, maid, mann, mar, mat, med, mel, mend, mens, ment, mil, mins, mint, mob, moc, mop, mos, mot, mud, mug, mum, nail,
+  nap, nat, nay, neil, nib, nip, noun, nous, nun, nut,
+  pac, paid, pail, pain, pair, pak, pal, pam, pans, pant, pap, par, pat, paw, pax, pens, pic, pier, pies, pins, pint, pit, pix, pod, pop, pos, pot, pour, pow, pub,
+  rand, rant, rent, rep, res, ret, rex, rib, rid, rig, rim, rub, rug, rum, runc, runs,
+  sac, sail, sal, sam, sans, sap, saw, sax, sew, sham, shaw, shin, sig, sin, sip, sis, suit, sung, suns, sup, sur, sus,
+  tad, tail, taj, tar, tax, tec, ted, tel, ter, tex, tic, tied, tier, ties, tim, tin, tit, tour, tout, tum,
+  wag, wand, womens, wap, wax, weir, won,
+  yan, yen]
+corrector_filter:
+  keep_source_comment: false
+chineseLunarCalendar_translator: lunar
+corrector: "{comment}"
+translator:
+  dictionary: rime_mint
+  spelling_hints: 8
+  always_show_comments: true
+  comment_format:
+    - xform/^/［/
+    - xform/$/］/
+  preedit_format:
+    - xform/([nl])v/$1ü/
+    - xform/([nl])ue/$1üe/
+    - xform/([jqxy])v/$1u/
+  initial_quality: 1.2
+  enable_user_dict: true
+  enable_sentence: false
+  enable_completion: false
+  enable_encoder: false
+  encode_commit_history: false
+melt_eng:
+  dictionary: melt_eng
+  enable_sentence: false
+  enable_completion: false
+  initial_quality: 0.8
+cn_en:
+  dictionary: ""
+  user_dict: dicts/rime_ice.cn_en
+  db_class: stabledb
+  enable_completion: false
+  enable_sentence: false
+  initial_quality: 0.5
+  comment_format:
+    - xform/^.+$//
+speller:
+  alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA
+  delimiter: " `"
+  algebra:
+    - erase/^xx$/
+    - derive/([aeiou])ng$/$1gn/
+    - derive/([dtngkhrzcs])o(u|ng)$/$1o/
+    - derive/ong$/on/
+    - derive/un$/ong/
+    - derive/^([a-z]).+$/$1/
+    - derive/^([zcs]h).+$/$1/
+    - abbrev/^([a-z]).+$/$1/
+    - derive/([zcs])h(a|e|i|u|ai|ei|an|en|ou|uo|ua|un|ui|uan|uai|uang|ang|eng|ong)$/h$1$2/
+    - derive/([zcs])h([aeiu])$/$1$2h/
+    - derive/^([wghk])ai$/$1ia/
+    - derive/([qjx])ia$/$1ai/
+    - derive/([wtfghkz])ei$/$1ie/
+    - derive/([jqx])ie$/$1ei/
+    - derive/([rtypsdghklzcbnm])ao$/$1oa/
+    - derive/([ypfm])ou$/$1uo/
+    - derive/([wrtypsdfghklzcbnm])an$/$1na/
+    - derive/([wrpsdfghklzcbnm])en$/$1ne/
+    - derive/([wrtypsdfghklzcbnm])ang$/$1nag/
+    - derive/([wrtypsdfghklzcbnm])ang$/$1agn/
+    - derive/([wrtpsdfghklzcbnm])eng$/$1neg/
+    - derive/([wrtpsdfghklzcbnm])eng$/$1egn/
+    - derive/([qtypdjlxbnm])ing$/$1nig/
+    - derive/([qtypdjlxbnm])ing$/$1ign/
+    - derive/([rtysdghklzcn])ong$/$1nog/
+    - derive/([rtysdghklzcn])ong$/$1ogn/
+    - derive/([qtpdjlxbnm])iao$/$1ioa/
+    - derive/([qtpdjlxbnm])iao$/$1oia/
+    - derive/([rtsghkzc])ui$/$1iu/
+    - derive/([qjlxnm])iu$/$1ui/
+    - derive/([qtpdjlxbnm])ian$/$1ain/
+    - derive/([qypjlxbnm])in$/$1ni/
+    - derive/([qjlxn])iang$/$1aing/
+    - derive/([qjlxn])iang$/$1inag/
+    - derive/([g|k|h|zh|sh])ua$/$1au/
+    - derive/([g|h|k|zh|ch|sh])uai$/$1aui/
+    - derive/([g|h|k|zh|ch|sh])uai$/$1uia/
+    - derive/([qrtysdghjklzxcn])uan$/$1aun/
+    - derive/([qrtysdghjklzxc])un$/$1nu/
+    - derive/([nlyjqx])ue$/$1eu/
+    - derive/([g|h|k|zh|ch|sh])uang$/$1aung/
+    - derive/([g|h|k|zh|ch|sh])uang$/$1uagn/
+    - derive/([g|h|k|zh|ch|sh])uang$/$1unag/
+    - derive/([g|h|k|zh|ch|sh])uang$/$1augn/
+    - derive/([jqx])iong$/$1inog/
+    - derive/([jqx])iong$/$1oing/
+    - derive/([jqx])iong$/$1iogn/
+    - derive/([jqx])iong$/$1oign/
+    - derive/([rtsdghkzc])o(u|ng)$/$1o/
+    - derive/ong$/on/
+    - derive/([tl])eng$/$1en/
+    - derive/([qwrtypsdfghjklzxcbnm])([aeio])ng$/$1ng/
+    - derive/un$/ong/
+wubi98_mint:
+  tag: wubi98_mint
+  dictionary: wubi98_mint
+  enable_user_dict: false
+  enable_completion: true
+  prefix: "Uw"
+  tips: 〔五笔〕
+stroke:
+  tag: stroke
+  dictionary: stroke
+  enable_user_dict: false
+  prefix: 'Ui'
+  tips: 〔笔画〕
+  preedit_format:
+    - xlit/hspnz/一丨丿丶乙/
+radical_reverse_lookup:
+  tag: radical_lookup
+  dictionary: radical_pinyin
+  enable_completion: false
+  enable_sentence: false
+  prefix: "Uu"
+  tips: 〔拆字〕
+reverse_lookup:
+  tags: [wubi98_mint,stroke,radical_lookup]
+  overwrite_comment: true
+  dictionary: dicts/rime_ice.8105
+punctuator:
+  import_preset: symbols
+  half_shape:
+      "#": "#"
+      "*": "*"
+      '.' : { commit: 。 }
+      "`": "`"
+      "~": "~"
+      "@": "@"
+      "=": "="
+      "/": ["/", "÷",]
+      '\': "、"
+      "_" : "──"
+      "'": {pair: ["「", "」"]}
+      "[": ["【", "["]
+      "]": ["】", "]"]
+      "$": ["¥", "$", "€", "£", "¢", "¤"]
+      "<": ["《", "〈", "«", "<"]
+      ">": ["》", "〉", "»", ">"]
+recognizer:
+  import_preset: default
+  patterns:
+    url: "^[a-z]+[.].+$"
+    punct: "^/([0-9]0?|[a-zA-Z]+)$"
+    wubi98_mint: "Uw[a-z]*'?$"
+    stroke: "Ui[a-z]*'?$"
+    radical_lookup: "Uu[a-z]*'?$"
+    rmb: "^R[0-9]+[.]?[0-9]*"
+    gregorian_to_lunar: "^N[0-9]{1,8}"
+    uppercase: ""
+key_binder:
+  import_preset: default
+  bindings:
+    - {accept: "Control+Shift+E", toggle: emoji_suggestion, when: always}
+    - {accept: "Control+Shift+exclam", toggle: transcription, when: has_menu}
+    - {accept: "Control+Shift+1", toggle: transcription, when: has_menu}
+    - {accept: minus, send: Page_Up, when: paging}
+    - {accept: equal, send: Page_Down, when: has_menu}
+    - { when: composing, accept: Control+p, send: Up }
+    - { when: composing, accept: Control+n, send: Down }
+    - { when: composing, accept: Control+b, send: Left }
+    - { when: composing, accept: Control+f, send: Right }
+    - { when: composing, accept: Control+a, send: Home }
+    - { when: composing, accept: Control+e, send: End }
+    - { when: composing, accept: Control+d, send: Delete }
+    - { when: composing, accept: Control+k, send: Shift+Delete }
+    - { when: composing, accept: Control+g, send: Escape }
+    - { when: composing, accept: Alt+v, send: Page_Up }
+    - { when: composing, accept: Control+v, send: Page_Down }
+    - { when: composing, accept: ISO_Left_Tab, send: Shift+Left }
+    - { when: composing, accept: Shift+Tab, send: Shift+Left }
+    - { when: composing, accept: Tab, send: Shift+Right }
+    - { when: paging, accept: minus, send: Page_Up }
+    - { when: has_menu, accept: equal, send: Page_Down }
+    - { when: paging, accept: comma, send: Page_Up }
+    - { when: has_menu, accept: period, send: Page_Down }
+    - { when: predicting, accept: comma, send: comma }
+    - { when: predicting, accept: period, send: period }
+    - { when: always, accept: Control+Shift+1, select: .next }
+    - { when: always, accept: Control+Shift+2, toggle: ascii_mode }
+    - { when: always, accept: Control+Shift+3, toggle: full_shape }
+    - { when: always, accept: Control+Shift+4, toggle: simplification }
+    - { when: always, accept: Control+Shift+5, toggle: extended_charset }
+    - { when: always, accept: Shift+space, toggle: full_shape }
+    - { when: always, accept: Control+period, toggle: ascii_punct }
+menu:
+  page_size: 7
